@@ -31,8 +31,7 @@
 ;;
 ;; Clojure has more brackets than Scheme:
 ;; (): the usual linked list
-;; []: this is a perisitent vector, it's backed by a binary tree so
-;;     pulling from the head and the tail is the same
+;; []: this is a perisitent vector, it's used more often than lists
 ;; {}: hash-map
 ;; ->, -->, ->>: these are the threading macros.  They operate like
 ;;               the pipe in the unix shell (output of the first
