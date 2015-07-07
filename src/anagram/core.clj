@@ -336,7 +336,8 @@ result:
 
 
 (def visited-nodes
-  "A set in an atom (a mutable set).  Contains the signatures of every visited node.  Each node in this case is the end of a word."
+  "A set in an atom (a mutable set).  Contains the signatures of every visited 
+node.  Each node in this case is the end of a word."
   (atom #{}))
 
 
