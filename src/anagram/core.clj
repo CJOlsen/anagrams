@@ -11,7 +11,6 @@
 ;; words, the program should print an empty string for both cases.
 
 
-
 ;; Notes:
 ;; The lookup problem is more or less solved, generating anagrams to
 ;; look up is not.
@@ -81,6 +80,7 @@
   ;; "abcd" ---> ["a" "b" "c" "d"]
   (vec (map str (seq word))))
 
+
 (defn assoc-deep   [m ks e]
   "Updates nested maps non-destructively, creates keys if there
    are none.  Last key is set to the default value {e nil}"
@@ -94,12 +94,14 @@
             :else
             (assoc m k (assoc-deep {} (rest ks) e))))) ;; new map
 
+
 (defn add-word [dict _word]
   ;; add word to the Trie (nested hash-map) structure
   (assoc-deep dict
               (as-vec _word)
               :end))
-    
+
+
 (defn make-dictionary [words]
   "Returns a nested hash-map structure representing all of the given words."
   (loop [words words
@@ -109,6 +111,7 @@
           :else
           (recur (rest words)
                  (add-word dict (first words))))))
+
 
 ;; => (make-dictionary ["hello" "there" "theodore" "that" "thing" "there" "thinks" "the" "thoughts"])
 ;; {"t" {"h" {"o" {"u" {"g" {"h" {"t" {"s" {:end nil}}}}}},
@@ -129,8 +132,8 @@
 ;;  generate the partitions than it does to check them.)
 
 
-
 (def word-dict (make-dictionary word-list))
+
 
 (defn legal-string? [s]
   "Check if a string is either a string or substring in words.txt"
@@ -139,14 +142,20 @@
                        false))))
 
 
-;; I duct-taped these mutable variable at the end 
+;; I duct-taped these mutable variables on at the end of the project
 (def ^:dynamic *excluded-words*
-  "When building anagrams of long words sometimes it becomes clear that some uninteresting words keep appearing, this prevents those words and their branches from being built.  This variable can be re-bound to a set of words to exclude."
+  "When building anagrams of long words sometimes it becomes clear that some 
+uninteresting words keep appearing, this prevents those words and their 
+branches from being built.  This variable can be re-bound to a set of words 
+to exclude."
   #{})
 
+
 (def ^:dynamic *min-length*
-  "Rebinding this will change the minimum length of words in the anagram.  Raising this number helps longer words compute in a reasonable time."
+  "Rebinding this will change the minimum length of words in the anagram.  
+Raising this number helps longer words compute in a reasonable time."
   2)
+
 
 (defn legal-word? [s]
   "Check if a string is a complete word in the dictionary."
@@ -163,20 +172,24 @@
 ;;
 
 (defn keys2 [m]
-  "Exactly like keys but returns an empty set instead of nil when called on nil or an empty map"
+  "Exactly like keys but returns an empty set instead of nil when called on 
+nil or an empty map"
   (let [s (keys m)]
     ;;(println "s: " s)
     (if (or (nil? s) (= :nil s) (= :end s))
       '()
       s)))
 
+
 (defn vals2 [m]
-  "Exactly like vals but returns an empty set instead of nil when called on nil or an empty map"
+  "Exactly like vals but returns an empty set instead of nil when called on 
+nil or an empty map"
   (let [s (vals m)]
     ;;(println "vals2, s: " s)
     (if (or (nil? s) (= :nil s) (= '(:end) s))
       '()
       s)))
+
 
 (defn count-keys [m]
   "Count the total number of keys for a given (nested) map"
@@ -186,6 +199,7 @@
         (+ (count (keys2 m))
            (reduce + (map count-keys (vals2 m))))))
 
+
 (defn count-leaves [m]
   (cond (contains? m :end)
         1
@@ -193,43 +207,6 @@
         (reduce + (map count-leaves (vals2 m)))))
 
 ;; end double-checking functions
-
-
-
-(defn split-map [m]
-  "(split-map {:a :b :c :d :e :f}) ---> ({:a :b} {:c :d} {:e :f})"
-  (map (fn [[k v]] {k v}) m))
-
-
-(defn paths [m]
-  "A function to take a Trie structure and return all of the words it contains."
-  (->> (cond (= m {:end :end})
-            ""
-            :else
-            (let [branches (split-map m)]
-              ;(println "branches: " branches)
-              (defn on-branch [b]
-                (if (= b {:end :end})
-                  ""
-                  (let [sub-branches (split-map (first (vals b)))]
-                    (defn on-sub-branch [sb]
-                      (concat (first (keys b))
-                              (first (paths sb))))
-                    (map on-sub-branch sub-branches))))
-              (mapcat on-branch branches)))
-      (map (fn [x] (apply str x)))))
-
-
-(defn paths [m]
-  (println "hello, m: " m)
-  (cond (= {:end :end} m)
-        ""
-        :else
-        (let [branches (split-map m)]
-          (println "branches: " branches)
-          (map (fn [x] (concat (first (keys x))
-                               (paths (branches (first (keys x))))))
-               branches))))
 
 
 
@@ -257,6 +234,7 @@
 ;;    seconds, and the word-dict automatically handles substrings**
 
 
+
 (defn assoc-deep  [m ks e]
   "Updates nested maps non-destructively, creates keys if there
    are none.  Last key is set to the default value {e nil}"
@@ -270,6 +248,10 @@
             :else
             (assoc m k (assoc-deep {} (rest ks) e)))))
 
+
+(defn split-map [m]
+  "(split-map {:a :b :c :d :e :f}) ---> ({:a :b} {:c :d} {:e :f})"
+  (map (fn [[k v]] {k v}) m))
 
 
 (defn deep-merge [maps]
@@ -327,6 +309,7 @@ result:
           (and (every? true? (map legal-word? complete-words))
                (true? (legal-string? partial-word))))))
 
+
 (defn legal-anagram_s? [s]
   ;;(println "in legal anagram: realized? s: " (realized? s) "s: " s)
   (every? true? (map legal-word? (string/split s #"\s+"))))
@@ -336,23 +319,14 @@ result:
   "Check the last word of the anagram only."
   (legal-word? (last (string/split s #"\s+"))))
 
+
 (defn legal-current? [s]
   "Check the in-progress word being built."
   (legal-string? (last (string/split s #"\s+"))))
 
 
-
-(defn dbg [x]
-  "Helps debug threading macros, prints current value, returns current value."
-  (println "\ndbg: " x "\n")
-  x)
-
-
 ;; mutable structures -------------------------------------------
 
-;; Because there's so much duplication, especially with larger
-;; anagrams, keep track of successes and failures.
-;;
 ;; No node needs to be explored more than once and there are multiple
 ;; paths to equivalent nodes: "car the" and "the car" are the same.
 ;;
@@ -365,12 +339,16 @@ result:
   "A set in an atom (a mutable set).  Contains the signatures of every visited node.  Each node in this case is the end of a word."
   (atom #{}))
 
+
 (def visited-subnodes
-  "A set in an atom (a mutable set).  Contains the signatures of every visited subnode.  The subnodes are the nodes that occur within individual words."
+  "A set in an atom (a mutable set).  Contains the signatures of every visited 
+subnode.  The subnodes are the nodes that occur within individual words."
   (atom #{}))
 
+
 (defn reset-visited! []
-  "Reset the visited nodes/subnodes.  Must be called every time anagrams are searched."
+  "Reset the visited nodes/subnodes.  Must be called every time anagrams are 
+searched."
   (reset! visited-nodes #{})
   (reset! visited-subnodes #{}))
 
@@ -397,9 +375,11 @@ result:
       nil?
       not))
 
+
 (defn subnode-visited! [n]
   "Add new signature to the visited-subnodes atom."
   (swap! visited-subnodes conj n))
+
 
 (defn subnode-visited? [n]
   "Lookup a signature in the visited-subnodes atom.  Returns boolean."
@@ -411,72 +391,24 @@ result:
 
 
 
-
-
-
-(defn p [s l ls e]
-  ;; (println "p.  ls: " ls)
-  (cond (empty? s) ;; empty string? then l is the last letter
-        (if (legal-anagram_s? (string/join [ls l])) ;; final check
-          {l {e :end}}  ;; legal anagram, return end-tag
-          false)        ;; not legal anagram
-        (= l " ")  ;; this is an end-of-word node
-        (if (node-visited? ls)
-          false  ;; if the node's been visited just bug-out
-          (do (node-visited! ls)  ;; otherwise, add to visited-nodes and continue
-              (if (legal-last? ls)
-                (let [with-letter (fn [x] (p (not-nth s x)   ;; string except for nth letter
-                                             (str (nth s x)) ;; nth letter becomes new l
-                                             (string/join [ls l])  ;; current l is appended to known legals
-                                             e)) ;; end tag
-                      results (map with-letter (range (count s)))] ;; list, each member is false or a map
-                  (if (every? false? results)
-                    false ;; there were no successful leaves found for this node
-                    {l (-> results  ;; threading macro, returning a map
-                           ((fn [x] (filter identity x)))
-                           ((fn [x] (deep-merge x))))}))
-                false))) ;; last word not legal
-        (subnode-visited? (string/join [ls l]))
-        false
-        ;; (do ;;(println "subnode tossed out: " (string/join [ls l]))
-        ;;     false)
-        :else  ;; must be a word in progress
-        (let [with-space (if (or (= (last ls) " ") (< (count s) 2))
-                           false ;; needs at least two letters for a space to make sense
-                           (p s    ;; same string
-                              " "  ;; new letter is a space
-                              (string/join [ls l]) ;; add current letter to old letters
-                              e))  ;; end tag
-              with-letter (fn [x] (if (legal-current? (string/join [ls l]))  ;; check if the new string is legal before recursing
-                                    (p (not-nth s x)   ;; string except nth letter
-                                       (str (nth s x)) ;; nth letter becomes new l
-                                       (string/join [ls l])  ;; current l is appended to known legals
-                                       e)
-                                    false)) ;; end tag
-              letter-results (map with-letter (range (count s)))
-              results (conj letter-results with-space)] ;; list, each member is false or a map
-          (subnode-visited! (string/join [ls l]))
-          (if (every? false? results)
-            false ;; there were no successful leaves found for this node
-            {l (-> results  ;; threading macro, returning a map
-                   ((fn [x] (filter identity x)))
-                   ((fn [x] (deep-merge x))))}))))  ;; combine all successful branches into one map and return it.     
-
-
 ;; the following are mutually recursive with p2 so p2 needs a forward
 ;; declaration (it's not in the namespace yet)
 (declare p2)
 
 ;; for the following functions
 ;; s: string remaining, l: current letter (or space), ls: past letters
-;; if "carport" is the given word, the first calle to p2 will be with s="carport", l="", ls=""
+;; if "carport" is the given word, the first called to p2 will be
+;;   with s="carport", l="", ls=""
 ;; then s="carort", l="p", ls=""
 ;; then s="caror", l="t", ls="p"
 ;; then s="caro", l="r", ls="pt"
 ;; etc.
 
+
 (defn _anagram-complete [s l ls]
-  "Called by p2 when there are no letters left.  If the node has already been visited return false.  Otherwise add to the visited nodes list and return true or false based on the anagram legality."
+  "Called by p2 when there are no letters left.  If the node has already been 
+visited return false.  Otherwise add to the visited nodes list and return true 
+or false based on the anagram legality."
   (cond (node-visited? (string/join [ls l]))
         false
         (legal-anagram_s? (string/join [ls l])) ;; final check
@@ -486,8 +418,11 @@ result:
         (do (node-visited! (string/join [ls l]))
             false)))
 
+
 (defn _end_of_word [s l ls]
-  "Called by p2 when s is a space.  If node has already been visited return false.  Otherwise add node to visited nodes list, and if node is legal call p2 with all possible next letter combinations."
+  "Called by p2 when s is a space.  If node has already been visited return 
+false.  Otherwise add node to visited nodes list, and if node is legal call 
+p2 with all possible next letter combinations."
   (if (node-visited? ls)
     false  ;; if the node's been visited just bug-out
     (do (node-visited! ls)  ;; otherwise, add to visited-nodes and continue
@@ -504,12 +439,17 @@ result:
                      ((fn [x] (deep-merge x))))}))
           false)))) ;; last word not legal)
 
+
 (defn _redundant-subnode [s l ls]
   "Stub in case there's something to be done with redundant subnodes."
   false)
 
+
 (defn _subnode [s l ls]
-  "Called by p2 when s is a new letter.  subnode-visited was called by p2 so this is a new subnode.  Call p2 with every combination of new letter as well as with a new space.  If all calls to p2 return false, also return false.  If legal branches come back, merge their maps into one and return that."
+  "Called by p2 when s is a new letter.  subnode-visited was called by p2 so 
+this is a new subnode.  Call p2 with every combination of new letter as well 
+as with a new space.  If all calls to p2 return false, also return false.  If 
+legal branches come back, merge their maps into one and return that."
   (let [with-space (if (or (= (last ls) " ") (< (count s) 2))
                      false ;; needs at least two letters for a space to make sense
                      (p2 s    ;; same string
@@ -536,7 +476,12 @@ result:
 
 s: string remaining, l: current letter (or space), ls: past letters
 
-This is mutually-recursive with the three functions above.  If the remaining string is empty then l is the last letter.  If l is a space then this is a node at the end of a word.  If the subnode has been visited simply return false.  Otherwise the current letter represents a subnode that needs to be checked for legality and if it's legal _subnode will call this function again with new parameters."
+This is mutually-recursive with the three functions above.  If the remaining 
+string is empty then l is the last letter.  If l is a space then this is a 
+node at the end of a word.  If the subnode has been visited simply return false.  
+Otherwise the current letter represents a subnode that needs to be checked for 
+legality and if it's legal _subnode will call this function again with new 
+parameters."
   (cond (empty? s) ;; empty string? then l is the last letter
         (_anagram-complete s l ls)
         (= l " ")
@@ -547,7 +492,6 @@ This is mutually-recursive with the three functions above.  If the remaining str
         :else
         (_subnode s l ls)))
         
-
 
 (defn keys-in [m]
   ;; from http://stackoverflow.com/questions/21768802/how-can-i-get-the-nested-keys-of-a-map-in-clojure
@@ -572,7 +516,8 @@ This is mutually-recursive with the three functions above.  If the remaining str
 
 
 (defn get-anagrams [word & excluded-words]
-  "Given a word and optional excluded words, finds all anagrams of the word that don't contain the excluded words."
+  "Given a word and optional excluded words, finds all anagrams of the word 
+that don't contain the excluded words."
   (reset-visited!)
   (binding [*excluded-words* (set (vec excluded-words))
             *min-length* 3]
