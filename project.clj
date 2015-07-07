@@ -3,7 +3,7 @@
   :url "http://example.com/FIXME"
   :license {:name "None"
             :url "None"}
-  :dependencies [[org.clojure/clojure "1.5.1"]
+  :dependencies [[org.clojure/clojure "1.7.0"]
                  [org.clojure/math.combinatorics "0.1.1"]]
   ;:resource-paths ["src/main/resource"]
   )
